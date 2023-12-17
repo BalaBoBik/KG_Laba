@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 #include <windows.h>
 #include <GL\GL.h>
@@ -304,7 +305,20 @@ void initRender(OpenGL *ogl)
 
 
 
+Vector3 GetNormal(double A [], double B [], double C[])
+{
+	Vector3 a = Vector3(A[0] - B[0], A[1] - B[1], A[2] - B[2]);
+	Vector3 b = Vector3(C[0] - B[0], C[1] - B[1], C[2] - B[2]);
+	double x, y, z;
+	x = a.Y() * b.Z() - b.Y() * a.Z();
+	y = -a.X() * b.Z() + b.X() * a.Z();
+	z = a.X() * b.Y() - b.X() * a.Y();
 
+	Vector3 n = Vector3(x, y, z);
+	double len=n.length();
+	n = Vector3(x / len, y / len, z / len);
+	return n;
+}
 
 void Render(OpenGL *ogl)
 {
@@ -350,27 +364,269 @@ void Render(OpenGL *ogl)
 
 
 	//Начало рисования квадратика станкина
-	double A[2] = { -4, -4 };
-	double B[2] = { 4, -4 };
-	double C[2] = { 4, 4 };
-	double D[2] = { -4, 4 };
+	double Mid[]{ 7.5,6,0 };
+	double MidT[]{ 7.5,6,7 };
+
+	double A[]{ 0,1,0 };
+	double AT[]{ 0,1,7 };
+
+	double B[]{ 1,9,0 };
+	double BT[]{ 1,9,7 };
+
+	double C[]{ 7,8,0 };
+	double CT[]{ 7,8,7 };
+
+	double D[]{ 11,14,0 };
+	double DT[]{ 11,14,7 };
+
+	double E[]{ 15,7,0 };
+	double ET[]{ 15,7,7 };
+
+	double F[]{ 12,3,0 };
+	double FT[]{ 12,3,7 };
+
+	double G[]{ 8,4,0 };
+	double GT[]{ 8,4,7 };
+
+	double H[]{ 7,0,0 };
+	double HT[]{ 7,0,7 };
 
 	glBindTexture(GL_TEXTURE_2D, texId);
-
-	glColor3d(0.6, 0.6, 0.6);
 	glBegin(GL_QUADS);
 
-	glNormal3d(0, 0, 1);
-	glTexCoord2d(0, 0);
-	glVertex2dv(A);
-	glTexCoord2d(1, 0);
-	glVertex2dv(B);
-	glTexCoord2d(1, 1);
-	glVertex2dv(C);
-	glTexCoord2d(0, 1);
-	glVertex2dv(D);
+	glColor3d(0, 0, 1);
+
+	double mid2[]{ (A[0] + B[0]) / 2,(A[1] + B[1]) / 2 };
+
+	float radius2 = sqrt(pow(A[0] - B[0], 2) + pow(A[1] - B[1], 2)) / 2;
+	float twoPI = 2 * PI;
+	for (float i = - 0.124354994546761; i <= - 0.124354994546761 + PI - 0.001; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 0 };
+		double Point1T[]{ (sin(i) * radius2) + mid2[0], -(cos(i) * radius2) + mid2[1], 7 };
+		double Point2T[]{ (sin(i + 0.001) * radius2) + mid2[0], -(cos(i + 0.001) * radius2) + mid2[1], 7 };
+		double Point2[]{ (sin(i + 0.001) * radius2) + mid2[0], -(cos(i + 0.001) * radius2) + mid2[1], 0 };
+
+		Vector3 normal = GetNormal(Point1, Point2, Point2T);
+		glNormal3d(normal.X(), normal.Y(), normal.Z());
+		glVertex3dv(Point1);
+		glVertex3dv(Point1T);
+		glVertex3dv(Point2T);
+		glVertex3dv(Point2);
+	}
+
+	
+
+	glColor3d(0, 0.5, 0.5);
+	
+	Vector3 normal = GetNormal(B, C, CT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glVertex3dv(B);
+	glVertex3dv(BT);
+	glVertex3dv(CT);
+	glVertex3dv(C);
+
+	normal = GetNormal(C, D, DT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glVertex3dv(C);
+	glVertex3dv(CT);
+	glVertex3dv(DT);
+	glVertex3dv(D);
 
 	glEnd();
+
+	glColor3d(0, 1, 0);
+
+	glBegin(GL_QUADS);
+	double mid1[]{ (D[0] + E[0]) / 2,(D[1] + E[1]) / 2 };
+
+	float radius1 = sqrt(pow(D[0] - E[0], 2) + pow(D[1] - E[1], 2) )/2;
+	twoPI = 2 * PI;
+	for (float i = PI/2- 1.05165021254837; i <= PI / 2 - 1.05165021254837 +PI-0.001; i += 0.001)
+	{
+		double Point1[] { (sin(i) * radius1) + mid1[0],  -(cos(i) * radius1) + mid1[1], 0 };
+		double Point1T[]{ (sin(i) * radius1) + mid1[0], -(cos(i) * radius1) + mid1[1], 7 };
+		double Point2T[] { (sin(i + 0.001) * radius1) + mid1[0], -(cos(i + 0.001) * radius1) + mid1[1], 7 };
+		double Point2[] { (sin(i + 0.001) * radius1) + mid1[0], -(cos(i + 0.001) * radius1) + mid1[1], 0 };
+
+		normal = GetNormal(Point2 ,Point1,Point1T);
+		glNormal3d(normal.X(), normal.Y(), normal.Z());
+		glVertex3dv(Point1);
+		glVertex3dv(Point1T);
+		glVertex3dv(Point2T);
+		glVertex3dv(Point2);
+	}
+		
+	glEnd();
+
+	glBegin(GL_QUADS);
+
+	normal = GetNormal(E, F, FT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 0.5, 0.5);
+	glVertex3dv(E);
+	glVertex3dv(ET);
+	glVertex3dv(FT);
+	glVertex3dv(F);
+
+	normal = GetNormal(F, G, GT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glVertex3dv(F);
+	glVertex3dv(FT);
+	glVertex3dv(GT);
+	glVertex3dv(G);
+
+	normal = GetNormal(G, H, HT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glVertex3dv(G);
+	glVertex3dv(GT);
+	glVertex3dv(HT);
+	glVertex3dv(H);
+
+	normal = GetNormal(H, A, AT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glVertex3dv(H);
+	glVertex3dv(HT);
+	glVertex3dv(AT);
+	glVertex3dv(A);
+
+	glEnd();
+
+	
+	glBegin(GL_POLYGON);
+	normal = GetNormal(A, Mid, B);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 0.7, 0.7);
+	glVertex3dv(Mid);
+	glVertex3dv(C);
+	glVertex3dv(D);
+
+	for (float i = PI / 2 - 1.05165021254837; i <= PI / 2 - 1.05165021254837 + PI; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius1) + mid1[0],  -(cos(i) * radius1) + mid1[1], 0 };
+		glVertex3dv(Point1);
+	}
+
+	glVertex3dv(E);
+	glVertex3dv(F);
+	glVertex3dv(G);
+	glVertex3dv(H);
+	glEnd();
+
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(A, Mid, B);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 0.7, 0.7);
+	glVertex3dv(H);
+
+	for (float i = -0.124354994546761; i <= -0.124354994546761 + PI/2 - 0.001; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 0 };
+		glVertex3dv(Point1);
+	}
+
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(A, Mid, B);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 0.7, 0.7);
+	glVertex3dv(C);
+
+	for (float i = -0.124354994546761 + PI / 2; i <= -0.124354994546761 + PI ; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 0 };
+		glVertex3dv(Point1);
+	}
+
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(A, Mid, B);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 0.7, 0.7);
+	glVertex3dv(Mid);
+	glVertex3dv(C);
+	glVertex3d((sin(-0.124354994546761 + PI / 2) * radius2) + mid2[0], -(cos(-0.124354994546761 + PI / 2) * radius2) + mid2[1], 0 );
+	glVertex3dv(H);
+	glVertex3dv(Mid);
+	glEnd();
+
+	
+	
+	glBegin(GL_POLYGON);
+	normal = GetNormal(BT, MidT, AT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glTexCoord2f(0, 0);
+	glColor3d(0, 1, 1);
+	glVertex3dv(MidT);
+	//glVertex3dv(AT);
+
+	//for (float i = -0.124354994546761; i <= -0.124354994546761 + PI - 0.001; i += 0.001)
+	//{
+		//double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 7 };
+		//glVertex3dv(Point1);
+	//}
+
+	//glVertex3dv(BT);
+	glVertex3dv(CT);
+	glVertex3dv(DT);
+
+	for (float i = PI / 2 - 1.05165021254837; i <= PI / 2 - 1.05165021254837 + PI; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius1) + mid1[0],  -(cos(i) * radius1) + mid1[1], 7 };
+		glVertex3dv(Point1);
+	}
+
+	glVertex3dv(ET);
+	glVertex3dv(FT);
+	glVertex3dv(GT);
+	glVertex3dv(HT);
+	//glVertex3dv(AT);
+	glEnd();
+
+
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(BT, MidT, AT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 1, 1);
+	glVertex3dv(HT);
+
+	for (float i = -0.124354994546761; i <= -0.124354994546761 + PI / 2 - 0.001; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 7 };
+		glVertex3dv(Point1);
+	}
+
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(BT, MidT, AT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 1, 1);
+	glVertex3dv(CT);
+
+	for (float i = -0.124354994546761 + PI / 2; i <= -0.124354994546761 + PI; i += 0.001)
+	{
+		double Point1[]{ (sin(i) * radius2) + mid2[0],  -(cos(i) * radius2) + mid2[1], 7 };
+		glVertex3dv(Point1);
+	}
+
+	glEnd();
+	glBegin(GL_POLYGON);
+
+	normal = GetNormal(BT, MidT, AT);
+	glNormal3d(normal.X(), normal.Y(), normal.Z());
+	glColor3d(0, 1, 1);
+	glVertex3dv(MidT);
+	glVertex3dv(CT);
+	glVertex3d((sin(-0.124354994546761 + PI / 2) * radius2) + mid2[0], -(cos(-0.124354994546761 + PI / 2) * radius2) + mid2[1], 7);
+	glVertex3dv(HT);
+	glVertex3dv(MidT);
+	glEnd();
+
 	//конец рисования квадратика станкина
 
 
